@@ -44,6 +44,8 @@ export const registrationSchema = z.object({
 });
 
 export type RegistrationFormData = z.infer<typeof registrationSchema>;
+export type RegistrationStatus = "en_proceso" | "validado" | "incidencia";
+
 
 // ─── DB row type (returned from Supabase) ─────────────────────────────────────
 
@@ -55,8 +57,21 @@ export interface Registration {
   passport_number: string;
   flight_number: string;
   airline: string;
+  status: RegistrationStatus;
   created_at: string;
 }
+
+export const STATUS_LABELS: Record<RegistrationStatus, string> = {
+  en_proceso: "En proceso",
+  validado:   "Validado",
+  incidencia: "Incidencia",
+};
+
+export const STATUS_COLORS: Record<RegistrationStatus, string> = {
+  en_proceso: "text-blue-600 bg-blue-50 border-blue-200",
+  validado:   "text-emerald-600 bg-emerald-50 border-emerald-200",
+  incidencia: "text-amber-600 bg-amber-50 border-amber-200",
+};
 
 // ─── Server Action response ───────────────────────────────────────────────────
 
@@ -70,18 +85,12 @@ export interface RegistrationResult {
 
 export const AIRLINES = [
   "Iberia",
-  "Vueling",
+  "SriLankan Airlines",
   "Air Europa",
-  "Ryanair",
-  "EasyJet",
-  "Wizz Air",
-  "Flydubai",
   "Emirates",
   "Etihad Airways",
   "Qatar Airways",
   "Turkish Airlines",
-  "Pegasus Airlines",
-  "Air Arabia",
   "Otra aerolínea",
 ] as const;
 
