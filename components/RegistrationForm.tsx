@@ -150,7 +150,7 @@ export default function RegistrationForm() {
 
       {/* Duplicate passport warning */}
       {status === "duplicate" && (
-        <Alert variant="warning">
+        <Alert variant="destructive">
           <AlertTriangle className="size-4" />
           <AlertTitle>Ya estás registrado</AlertTitle>
           <AlertDescription>
