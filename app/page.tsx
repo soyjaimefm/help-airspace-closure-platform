@@ -56,10 +56,10 @@ export default function HomePage() {
               </a>
             ))}
             <a
-              href="#form"
+              href="/admin"
               className="ml-2 text-sm font-semibold px-4 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              Consultar Estado
+              Admin
             </a>
           </div>
         </nav>
