@@ -35,20 +35,22 @@ export async function submitRegistration(
     };
   }
 
-  // ── 3. INSERT ────────────────────────────────────────────────────────────
-  const { error: insertError } = await supabase.from("registrations").insert({
-    full_name:       parsed.data.full_name.trim(),
-    email:           parsed.data.email.trim().toLowerCase(),
-    phone:           parsed.data.phone.trim(),
-    passport_number: parsed.data.passport_number.trim().toUpperCase(),
-    flight_number:   parsed.data.flight_number.trim().toUpperCase(),
-    airline:         parsed.data.airline.trim(),
-  });
+  // ── 3. INSERT registration ────────────────────────────────────────────────
+  const { data: registration, error: insertRegError } = await supabase
+    .from("registrations")
+    .insert({
+      full_name:       parsed.data.full_name.trim(),
+      email:           parsed.data.email.trim().toLowerCase(),
+      phone:           parsed.data.phone.trim(),
+      passport_number: parsed.data.passport_number.trim().toUpperCase(),
+    })
+    .select("id")
+    .single();
 
-  if (insertError) {
-    console.error("[submitRegistration] insert error:", insertError);
+  if (insertRegError) {
+    console.error("[submitRegistration] registration insert error:", insertRegError);
     // Race-condition: unique constraint violation (PostgreSQL code 23505)
-    if (insertError.code === "23505") {
+    if (insertRegError.code === "23505") {
       return {
         success: false,
         duplicate: true,
@@ -61,5 +63,33 @@ export async function submitRegistration(
     };
   }
 
+  // ── 4. INSERT cancelled flights ──────────────────────────────────────────
+  const { error: flightsError } = await supabase
+    .from("cancelled_flights")
+    .insert(
+      parsed.data.cancelledFlights.map((flight) => ({
+        registration_id: registration.id,
+        flight_number:   flight.flight_number.trim().toUpperCase(),
+        airline:         flight.airline.trim(),
+        flight_date:     flight.flight_date,
+      }))
+    );
+
+  if (flightsError) {
+    console.error("[submitRegistration] flights insert error:", flightsError);
+    // Handle UNIQUE constraint violation (duplicate flight per registration)
+    if (flightsError.code === "23505") {
+      return {
+        success: false,
+        error: "Ya has registrado uno de estos vuelos.",
+      };
+    }
+    return {
+      success: false,
+      error: "Error al guardar los vuelos. Inténtalo de nuevo.",
+    };
+  }
+
   return { success: true };
 }
+

@@ -4,6 +4,29 @@ import { z } from "zod";
 // Single source of truth used by React Hook Form (client) AND
 // the Server Action (server-side defence-in-depth validation).
 
+// Nested schema for each cancelled flight
+const cancelledFlightSchema = z.object({
+  flight_number: z
+    .string()
+    .min(1, "El número de vuelo es obligatorio.")
+    .regex(
+      /^[A-Za-z0-9]{2,10}$/,
+      "Formato incorrecto. Ej: IB3456 o VY1024."
+    ),
+  airline: z.string().min(1, "Selecciona una aerolínea."),
+  flight_date: z
+    .string()
+    .min(1, "La fecha y hora del vuelo es obligatoria.")
+    .refine(
+      (v) => !isNaN(Date.parse(v)),
+      "Introduce una fecha y hora válidas."
+    )
+    .refine(
+      (v) => new Date(v) <= new Date(),
+      "La fecha y hora del vuelo debe ser en el pasado."
+    ),
+});
+
 export const registrationSchema = z.object({
   full_name: z
     .string()
@@ -23,16 +46,25 @@ export const registrationSchema = z.object({
     ),
   passport_number: z
     .string()
+    .min(1, "El número de pasaporte es obligatorio.")
     .min(5, "El número de pasaporte no es válido.")
     .max(20, "El número de pasaporte no es válido."),
-  flight_number: z
-    .string()
-    .min(1, "El número de vuelo es obligatorio.")
-    .regex(
-      /^[A-Za-z0-9]{2,10}$/,
-      "Formato incorrecto. Ej: IB3456 o VY1024."
+  cancelledFlights: z
+    .array(cancelledFlightSchema)
+    .min(1, "Debes registrar al menos un vuelo cancelado.")
+    .max(6, "Máximo 6 vuelos cancelados.")
+    .refine(
+      (flights) => {
+        const seen = new Set<string>();
+        for (const flight of flights) {
+          const key = `${flight.flight_number.toUpperCase()}-${flight.airline}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+        }
+        return true;
+      },
+      "No puedes registrar vuelos duplicados."
     ),
-  airline: z.string().min(1, "Selecciona una aerolínea."),
   privacy_accepted: z
     .boolean()
     .refine(
@@ -44,6 +76,16 @@ export const registrationSchema = z.object({
 export type RegistrationFormData = z.infer<typeof registrationSchema>;
 export type RegistrationStatus = "en_proceso" | "validado" | "incidencia";
 
+// ─── Type for each cancelled flight ───────────────────────────────────────────
+
+export interface CancelledFlight {
+  id?: number;
+  registration_id?: number;
+  flight_number: string;
+  airline: string;
+  flight_date: string;
+  created_at?: string;
+}
 
 // ─── DB row type (returned from Supabase) ─────────────────────────────────────
 
@@ -53,8 +95,6 @@ export interface Registration {
   email: string;
   phone: string;
   passport_number: string;
-  flight_number: string;
-  airline: string;
   status: RegistrationStatus;
   created_at: string;
 }

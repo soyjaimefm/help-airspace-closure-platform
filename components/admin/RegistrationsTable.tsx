@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useMemo } from "react";
 import {
-  Search, Filter, Calendar, FileSpreadsheet,
+  Search, Calendar, FileSpreadsheet,
   FileDown, ChevronLeft, ChevronRight, MoreHorizontal,
   ArrowUpDown,
 } from "lucide-react";
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import {
   type Registration, type RegistrationStatus,
-  STATUS_LABELS, STATUS_COLORS, AIRLINES,
+  STATUS_LABELS, STATUS_COLORS,
 } from "@/lib/types";
 import { updateStatus, fetchAllRegistrations } from "@/app/admin/actions";
 
@@ -69,11 +69,10 @@ function Avatar({ name }: { name: string }) {
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
 function toCSV(data: Registration[]): string {
-  const header = ["ID","Nombre","Email","Teléfono","Pasaporte","Vuelo","Aerolínea","Estado","Fecha"];
+  const header = ["ID","Nombre","Email","Teléfono","Pasaporte","Estado","Fecha"];
   const rows = data.map((r) => [
     r.id, `"${r.full_name}"`, r.email, r.phone,
-    r.passport_number, r.flight_number, r.airline,
-    STATUS_LABELS[r.status], new Date(r.created_at).toLocaleDateString("es-ES"),
+    r.passport_number, STATUS_LABELS[r.status], new Date(r.created_at).toLocaleDateString("es-ES"),
   ]);
   return [header, ...rows].map((r) => r.join(",")).join("\n");
 }
@@ -97,7 +96,6 @@ export default function RegistrationsTable({
 }) {
   const [data, setData]           = useState(initialData);
   const [search, setSearch]       = useState("");
-  const [airline, setAirline]     = useState("all");
   const [statusFilter, setStatus] = useState("all");
   const [page, setPage]           = useState(1);
   const [isPending, startTransition] = useTransition();
@@ -110,13 +108,11 @@ export default function RegistrationsTable({
         !q ||
         r.full_name.toLowerCase().includes(q) ||
         r.email.toLowerCase().includes(q) ||
-        r.passport_number.toLowerCase().includes(q) ||
-        r.flight_number.toLowerCase().includes(q);
-      const matchAirline = airline === "all" || r.airline === airline;
+        r.passport_number.toLowerCase().includes(q);
       const matchStatus  = statusFilter === "all" || r.status === statusFilter;
-      return matchSearch && matchAirline && matchStatus;
+      return matchSearch && matchStatus;
     });
-  }, [data, search, airline, statusFilter]);
+  }, [data, search, statusFilter]);
 
   // ── Pagination ─────────────────────────────────────────────────────────────
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -161,8 +157,6 @@ export default function RegistrationsTable({
       Email:      r.email,
       Teléfono:   r.phone,
       Pasaporte:  r.passport_number,
-      Vuelo:      r.flight_number,
-      Aerolínea:  r.airline,
       Estado:     STATUS_LABELS[r.status],
       "Fecha Registro": new Date(r.created_at).toLocaleDateString("es-ES"),
     }));
@@ -224,18 +218,6 @@ export default function RegistrationsTable({
           />
         </div>
 
-        {/* Airline filter */}
-        <Select value={airline} onValueChange={(v) => { setAirline(v); setPage(1); }}>
-          <SelectTrigger className="w-48 gap-1">
-            <Filter className="size-3.5 text-muted-foreground" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas las Aerolíneas</SelectItem>
-            {AIRLINES.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
         {/* Status filter */}
         <Select value={statusFilter} onValueChange={(v) => { setStatus(v); setPage(1); }}>
           <SelectTrigger className="w-36 gap-1">
@@ -263,8 +245,6 @@ export default function RegistrationsTable({
               </TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Pasaporte</TableHead>
-              <TableHead>Vuelo</TableHead>
-              <TableHead>Aerolínea</TableHead>
               <TableHead>Fecha Registro</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="w-12" />
@@ -273,7 +253,7 @@ export default function RegistrationsTable({
           <TableBody>
             {paged.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-16 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-16 text-muted-foreground">
                   No se encontraron registros
                 </TableCell>
               </TableRow>
@@ -288,12 +268,6 @@ export default function RegistrationsTable({
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{reg.email}</TableCell>
                   <TableCell className="text-sm font-mono">{reg.passport_number}</TableCell>
-                  <TableCell className="text-sm font-bold">{reg.flight_number}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs font-medium">
-                      {reg.airline}
-                    </Badge>
-                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                     {new Date(reg.created_at).toLocaleDateString("es-ES", {
                       day: "2-digit", month: "short", year: "numeric",

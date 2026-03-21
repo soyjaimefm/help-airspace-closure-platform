@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Loader2, Send, User, Plane,
-  ShieldCheck, AlertTriangle, TriangleAlert, CircleCheck, AlertCircle,
+  ShieldCheck, AlertTriangle, TriangleAlert, CircleCheck, AlertCircle, Plus, Trash2,
 } from "lucide-react";
 
 import { Button }   from "@/components/ui/button";
@@ -65,8 +65,7 @@ function SuccessScreen({ data }: { data: RegistrationFormData }) {
         {[
           { label: "Nombre",    value: data.full_name },
           { label: "Email",     value: data.email },
-          { label: "Vuelo",     value: data.flight_number.toUpperCase() },
-          { label: "Aerolínea", value: data.airline },
+          { label: "Vuelos Cancelados", value: `${data.cancelledFlights.length} vuelo(s)` },
         ].map(({ label, value }) => (
           <div key={label} className="flex items-center justify-between gap-4 text-sm">
             <span className="text-muted-foreground">{label}</span>
@@ -99,10 +98,16 @@ export default function RegistrationForm() {
       email: "",
       phone: "",
       passport_number: "",
-      flight_number: "",
-      airline: "",
+      cancelledFlights: [
+        { flight_number: "", airline: "", flight_date: "" }
+      ],
       privacy_accepted: false,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "cancelledFlights",
   });
 
   const onSubmit = async (data: RegistrationFormData) => {
@@ -293,79 +298,150 @@ export default function RegistrationForm() {
 
       {/* ── Detalles del Vuelo ── */}
       <div className="space-y-4">
-        <SectionHeading icon={Plane} label="Detalles del Vuelo" />
+        <SectionHeading icon={Plane} label="Vuelos Cancelados" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Número de vuelo */}
-          <Controller
-            name="flight_number"
-            control={control}
-            render={({ field, fieldState: { invalid, error } }) => (
-              <div data-invalid={invalid}>
-                <Label htmlFor="flight_number">
-                  Número de Vuelo Cancelado <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  {...field}
-                  id="flight_number"
-                  placeholder="Ej: IB3240"
-                  autoComplete="off"
-                  aria-invalid={invalid}
-                  aria-describedby={invalid ? "flight_number-error" : undefined}
-                />
-                {invalid && (
-                  <p
-                    id="flight_number-error"
-                    className="flex items-center gap-1 text-xs text-destructive"
-                    role="alert"
+        {/* Array validation error message */}
+        {!fields.length && (
+          <p className="text-xs text-destructive">Debes registrar al menos un vuelo cancelado.</p>
+        )}
+
+        {/* Dynamic flight fields */}
+        <div className="space-y-6">
+          {fields.map((field, index) => (
+            <div key={field.id} className="rounded-lg border bg-muted/30 p-5 space-y-4">
+              {/* Flight counter */}
+              <div className="flex justify-between items-center">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Vuelo {index + 1} de {fields.length}
+                </p>
+                {fields.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
-                    <AlertCircle className="size-3 shrink-0" />
-                    {error?.message}
-                  </p>
+                    <Trash2 className="size-4" />
+                    Eliminar
+                  </Button>
                 )}
               </div>
-            )}
-          />
 
-          {/* Aerolínea */}
-          <Controller
-            name="airline"
-            control={control}
-            render={({ field, fieldState: { invalid, error } }) => (
-              <div data-invalid={invalid}>
-                <Label htmlFor="airline">
-                  Aerolínea <span className="text-destructive">*</span>
-                </Label>
-                <Select value={field.value || ""} onValueChange={field.onChange}>
-                  <SelectTrigger
-                    id="airline"
-                    aria-invalid={invalid}
-                    aria-describedby={invalid ? "airline-error" : undefined}
-                  >
-                    <SelectValue placeholder="Seleccione una aerolínea" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AIRLINES.map((airline) => (
-                      <SelectItem key={airline} value={airline}>
-                        {airline}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {invalid && (
-                  <p
-                    id="airline-error"
-                    className="flex items-center gap-1 text-xs text-destructive"
-                    role="alert"
-                  >
-                    <AlertCircle className="size-3 shrink-0" />
-                    {error?.message}
-                  </p>
+              {/* Flight number */}
+              <Controller
+                name={`cancelledFlights.${index}.flight_number`}
+                control={control}
+                render={({ field: flightField, fieldState: { invalid, error } }) => (
+                  <div data-invalid={invalid}>
+                    <Label htmlFor={`flight_number_${index}`}>
+                      Número de Vuelo <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      {...flightField}
+                      id={`flight_number_${index}`}
+                      placeholder="Ej: IB3240"
+                      autoComplete="off"
+                      aria-invalid={invalid}
+                      aria-describedby={invalid ? `flight_number_${index}-error` : undefined}
+                    />
+                    {invalid && (
+                      <p
+                        id={`flight_number_${index}-error`}
+                        className="flex items-center gap-1 text-xs text-destructive mt-1"
+                        role="alert"
+                      >
+                        <AlertCircle className="size-3 shrink-0" />
+                        {error?.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-          />
+              />
+
+              {/* Airline */}
+              <Controller
+                name={`cancelledFlights.${index}.airline`}
+                control={control}
+                render={({ field: flightField, fieldState: { invalid, error } }) => (
+                  <div data-invalid={invalid}>
+                    <Label htmlFor={`airline_${index}`}>
+                      Aerolínea <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={flightField.value || ""} onValueChange={flightField.onChange}>
+                      <SelectTrigger
+                        id={`airline_${index}`}
+                        aria-invalid={invalid}
+                        aria-describedby={invalid ? `airline_${index}-error` : undefined}
+                      >
+                        <SelectValue placeholder="Seleccione una aerolínea" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AIRLINES.map((airline) => (
+                          <SelectItem key={airline} value={airline}>
+                            {airline}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {invalid && (
+                      <p
+                        id={`airline_${index}-error`}
+                        className="flex items-center gap-1 text-xs text-destructive mt-1"
+                        role="alert"
+                      >
+                        <AlertCircle className="size-3 shrink-0" />
+                        {error?.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              {/* Flight date and time */}
+              <Controller
+                name={`cancelledFlights.${index}.flight_date`}
+                control={control}
+                render={({ field: flightField, fieldState: { invalid, error } }) => (
+                  <div data-invalid={invalid}>
+                    <Label htmlFor={`flight_date_${index}`}>
+                      Fecha y Hora del Vuelo <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      {...flightField}
+                      id={`flight_date_${index}`}
+                      type="datetime-local"
+                      aria-invalid={invalid}
+                      aria-describedby={invalid ? `flight_date_${index}-error` : undefined}
+                    />
+                    {invalid && (
+                      <p
+                        id={`flight_date_${index}-error`}
+                        className="flex items-center gap-1 text-xs text-destructive mt-1"
+                        role="alert"
+                      >
+                        <AlertCircle className="size-3 shrink-0" />
+                        {error?.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+          ))}
         </div>
+
+        {/* Add flight button */}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => append({ flight_number: "", airline: "", flight_date: "" })}
+          disabled={fields.length >= 6}
+          className="w-full"
+        >
+          <Plus className="size-4 mr-2" />
+          Agregar vuelo cancelado
+        </Button>
       </div>
 
       <Separator />
