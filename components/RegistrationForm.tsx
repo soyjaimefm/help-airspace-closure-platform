@@ -390,18 +390,20 @@ export default function RegistrationForm() {
                   htmlFor="privacy_accepted"
                   className="text-sm font-normal leading-relaxed cursor-pointer"
                 >
-                  He leído y acepto la{" "}
-                  <a
-                    href="/privacidad"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
-                  >
-                    Política de Privacidad
-                  </a>{" "}
-                  y los términos legales de la plataforma. Autorizo el tratamiento de
-                  mis datos para la gestión de esta demanda colectiva bajo el marco del
-                  RGPD.
+                  <span>
+                    He leído y acepto la{" "}
+                    <a
+                      href="/privacidad"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
+                    >
+                      Política de Privacidad
+                    </a>{" "}
+                    y los términos legales de la plataforma. Autorizo el tratamiento de
+                    mis datos para la gestión de esta demanda colectiva bajo el marco del
+                    RGPD.
+                  </span>
                 </Label>
               </div>
               {invalid && (
