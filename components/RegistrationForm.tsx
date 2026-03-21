@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Loader2, Send, User, Plane,
@@ -23,16 +23,6 @@ import { registrationSchema, type RegistrationFormData, AIRLINES } from "@/lib/t
 import { submitRegistration } from "@/app/actions";
 
 // ─── Small helpers ────────────────────────────────────────────────────────────
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return (
-    <p className="flex items-center gap-1 text-xs text-destructive" role="alert">
-      <AlertCircle className="size-3 shrink-0" />
-      {message}
-    </p>
-  );
-}
 
 function SectionHeading({
   icon: Icon,
@@ -98,13 +88,12 @@ export default function RegistrationForm() {
   const [submittedData, setSubmittedData] = useState<RegistrationFormData | null>(null);
 
   const {
-    register,
+    control,
     handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema),
+    mode: "onBlur",
     defaultValues: {
       full_name: "",
       email: "",
@@ -115,8 +104,6 @@ export default function RegistrationForm() {
       privacy_accepted: false,
     },
   });
-
-  const privacyAccepted = watch("privacy_accepted");
 
   const onSubmit = async (data: RegistrationFormData) => {
     setStatus("idle");
@@ -175,66 +162,130 @@ export default function RegistrationForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Nombre */}
-          <div className="space-y-1.5">
-            <Label htmlFor="full_name">
-              Nombre Completo <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="full_name"
-              placeholder="Ej: Juan Pérez García"
-              autoComplete="name"
-              aria-invalid={!!errors.full_name}
-              {...register("full_name")}
-            />
-            <FieldError message={errors.full_name?.message} />
-          </div>
+          <Controller
+            name="full_name"
+            control={control}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <div data-invalid={invalid}>
+                <Label htmlFor="full_name">
+                  Nombre Completo <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  {...field}
+                  id="full_name"
+                  placeholder="Ej: Juan Pérez García"
+                  autoComplete="name"
+                  aria-invalid={invalid}
+                  aria-describedby={invalid ? "full_name-error" : undefined}
+                />
+                {invalid && (
+                  <p
+                    id="full_name-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
           {/* Email */}
-          <div className="space-y-1.5">
-            <Label htmlFor="email">
-              Correo Electrónico <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="correo@ejemplo.com"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register("email")}
-            />
-            <FieldError message={errors.email?.message} />
-          </div>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <div data-invalid={invalid}>
+                <Label htmlFor="email">
+                  Correo Electrónico <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  {...field}
+                  id="email"
+                  type="email"
+                  placeholder="correo@ejemplo.com"
+                  autoComplete="email"
+                  aria-invalid={invalid}
+                  aria-describedby={invalid ? "email-error" : undefined}
+                />
+                {invalid && (
+                  <p
+                    id="email-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
           {/* Teléfono */}
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">
-              Teléfono (con código de país) <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+34 600 000 000"
-              autoComplete="tel"
-              aria-invalid={!!errors.phone}
-              {...register("phone")}
-            />
-            <FieldError message={errors.phone?.message} />
-          </div>
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <div data-invalid={invalid}>
+                <Label htmlFor="phone">
+                  Teléfono (con código de país) <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  {...field}
+                  id="phone"
+                  type="tel"
+                  placeholder="+34 600 000 000"
+                  autoComplete="tel"
+                  aria-invalid={invalid}
+                  aria-describedby={invalid ? "phone-error" : undefined}
+                />
+                {invalid && (
+                  <p
+                    id="phone-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
           {/* Pasaporte */}
-          <div className="space-y-1.5">
-            <Label htmlFor="passport_number">
-              Número de Pasaporte <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="passport_number"
-              placeholder="A12345678"
-              autoComplete="off"
-              aria-invalid={!!errors.passport_number}
-              {...register("passport_number")}
-            />
-            <FieldError message={errors.passport_number?.message} />
-          </div>
+          <Controller
+            name="passport_number"
+            control={control}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <div data-invalid={invalid}>
+                <Label htmlFor="passport_number">
+                  Número de Pasaporte <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  {...field}
+                  id="passport_number"
+                  placeholder="A12345678"
+                  autoComplete="off"
+                  aria-invalid={invalid}
+                  aria-describedby={invalid ? "passport_number-error" : undefined}
+                />
+                {invalid && (
+                  <p
+                    id="passport_number-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
         </div>
       </div>
 
@@ -246,87 +297,126 @@ export default function RegistrationForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Número de vuelo */}
-          <div className="space-y-1.5">
-            <Label htmlFor="flight_number">
-              Número de Vuelo Cancelado <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="flight_number"
-              placeholder="Ej: IB3240"
-              autoComplete="off"
-              aria-invalid={!!errors.flight_number}
-              {...register("flight_number")}
-            />
-            <FieldError message={errors.flight_number?.message} />
-          </div>
+          <Controller
+            name="flight_number"
+            control={control}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <div data-invalid={invalid}>
+                <Label htmlFor="flight_number">
+                  Número de Vuelo Cancelado <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  {...field}
+                  id="flight_number"
+                  placeholder="Ej: IB3240"
+                  autoComplete="off"
+                  aria-invalid={invalid}
+                  aria-describedby={invalid ? "flight_number-error" : undefined}
+                />
+                {invalid && (
+                  <p
+                    id="flight_number-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
           {/* Aerolínea */}
-          <div className="space-y-1.5">
-            <Label htmlFor="airline">
-              Aerolínea <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                setValue("airline", value, { shouldValidate: true })
-              }
-            >
-              <SelectTrigger
-                id="airline"
-                aria-invalid={!!errors.airline}
-              >
-                <SelectValue placeholder="Seleccione una aerolínea" />
-              </SelectTrigger>
-              <SelectContent>
-                {AIRLINES.map((airline) => (
-                  <SelectItem key={airline} value={airline}>
-                    {airline}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FieldError message={errors.airline?.message} />
-          </div>
+          <Controller
+            name="airline"
+            control={control}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <div data-invalid={invalid}>
+                <Label htmlFor="airline">
+                  Aerolínea <span className="text-destructive">*</span>
+                </Label>
+                <Select value={field.value || ""} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    id="airline"
+                    aria-invalid={invalid}
+                    aria-describedby={invalid ? "airline-error" : undefined}
+                  >
+                    <SelectValue placeholder="Seleccione una aerolínea" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AIRLINES.map((airline) => (
+                      <SelectItem key={airline} value={airline}>
+                        {airline}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {invalid && (
+                  <p
+                    id="airline-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
         </div>
       </div>
 
       <Separator />
 
       {/* ── Privacidad / RGPD ── */}
-      <div className="rounded-lg border bg-accent/40 p-4 space-y-2">
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id="privacy_accepted"
-            checked={privacyAccepted}
-            onCheckedChange={(checked) =>
-              setValue("privacy_accepted", checked === true, {
-                shouldValidate: true,
-              })
-            }
-            aria-invalid={!!errors.privacy_accepted}
-            className="mt-0.5"
-          />
-          <Label
-            htmlFor="privacy_accepted"
-            className="text-sm font-normal leading-relaxed cursor-pointer"
-          >
-            <span>
-              He leído y acepto la{" "}
-              <a
-                href="/privacidad"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
-              >
-                Política de Privacidad
-              </a>{" "}
-              y los términos legales de la plataforma. Autorizo el tratamiento de
-              mis datos para la gestión de esta demanda colectiva bajo el marco del
-              RGPD.
-
-            </span>
-          </Label>
-        </div>
-        <FieldError message={errors.privacy_accepted?.message} />
+      <div className="rounded-lg border bg-accent/40 p-4">
+        <Controller
+          name="privacy_accepted"
+          control={control}
+          render={({ field, fieldState: { invalid, error } }) => (
+            <div data-invalid={invalid}>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="privacy_accepted"
+                  checked={field.value === true}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                  aria-invalid={invalid}
+                  aria-describedby={invalid ? "privacy_accepted-error" : undefined}
+                  className="mt-0.5"
+                />
+                <Label
+                  htmlFor="privacy_accepted"
+                  className="text-sm font-normal leading-relaxed cursor-pointer"
+                >
+                  He leído y acepto la{" "}
+                  <a
+                    href="/privacidad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
+                  >
+                    Política de Privacidad
+                  </a>{" "}
+                  y los términos legales de la plataforma. Autorizo el tratamiento de
+                  mis datos para la gestión de esta demanda colectiva bajo el marco del
+                  RGPD.
+                </Label>
+              </div>
+              {invalid && (
+                <p
+                  id="privacy_accepted-error"
+                  className="flex items-center gap-1 text-xs text-destructive mt-2"
+                  role="alert"
+                >
+                  <AlertCircle className="size-3 shrink-0" />
+                  {error?.message}
+                </p>
+              )}
+            </div>
+          )}
+        />
       </div>
 
       {/* ── Botón de envío ── */}

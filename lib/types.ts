@@ -13,8 +13,6 @@ export const registrationSchema = z.object({
       "Introduce nombre y apellidos."
     ),
   email: z
-    .string()
-    .min(1, "El correo electrónico es obligatorio.")
     .email("Introduce un correo electrónico válido."),
   phone: z
     .string()
@@ -25,8 +23,8 @@ export const registrationSchema = z.object({
     ),
   passport_number: z
     .string()
-    .min(1, "El número de pasaporte es obligatorio.")
-    .min(5, "El número de pasaporte no es válido."),
+    .min(5, "El número de pasaporte no es válido.")
+    .max(20, "El número de pasaporte no es válido."),
   flight_number: z
     .string()
     .min(1, "El número de vuelo es obligatorio.")
