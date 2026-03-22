@@ -99,6 +99,12 @@ export interface Registration {
   created_at: string;
 }
 
+// ─── Type for registrations with related cancelled flights (admin panel) ────
+
+export interface RegistrationWithFlights extends Registration {
+  cancelled_flights: CancelledFlight[];
+}
+
 export const STATUS_LABELS: Record<RegistrationStatus, string> = {
   en_proceso: "En proceso",
   validado:   "Validado",

@@ -30,7 +30,7 @@ export async function fetchAllRegistrations() {
 
   const { data, error } = await supabase
     .from("registrations")
-    .select("*")
+    .select("*, cancelled_flights(*)")
     .order("created_at", { ascending: false });
 
   if (error) {

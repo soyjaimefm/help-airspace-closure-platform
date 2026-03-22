@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Button }   from "@/components/ui/button";
 import { Input }    from "@/components/ui/input";
-import { Badge }    from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -20,7 +19,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  type Registration, type RegistrationStatus,
+  type RegistrationWithFlights, type RegistrationStatus,
   STATUS_LABELS, STATUS_COLORS,
 } from "@/lib/types";
 import { updateStatus, fetchAllRegistrations } from "@/app/admin/actions";
@@ -68,7 +67,7 @@ function Avatar({ name }: { name: string }) {
 }
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
-function toCSV(data: Registration[]): string {
+function toCSV(data: RegistrationWithFlights[]): string {
   const header = ["ID","Nombre","Email","Teléfono","Pasaporte","Estado","Fecha"];
   const rows = data.map((r) => [
     r.id, `"${r.full_name}"`, r.email, r.phone,
@@ -92,13 +91,23 @@ const PAGE_SIZE = 10;
 export default function RegistrationsTable({
   initialData,
 }: {
-  initialData: Registration[];
+  initialData: RegistrationWithFlights[];
 }) {
   const [data, setData]           = useState(initialData);
   const [search, setSearch]       = useState("");
   const [statusFilter, setStatus] = useState("all");
   const [page, setPage]           = useState(1);
   const [isPending, startTransition] = useTransition();
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+
+  // ── Toggle row expansion ────────────────────────────────────────────────
+  const toggleExpand = (regId: number) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev);
+      next.has(regId) ? next.delete(regId) : next.add(regId);
+      return next;
+    });
+  };
 
   // ── Filtering ──────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -143,7 +152,7 @@ export default function RegistrationsTable({
   async function handleExportCSV() {
     const { data: all } = await fetchAllRegistrations();
     if (!all) return;
-    downloadBlob(toCSV(all as Registration[]), "registros.csv", "text/csv;charset=utf-8;");
+    downloadBlob(toCSV(all as RegistrationWithFlights[]), "registros.csv", "text/csv;charset=utf-8;");
   }
 
   async function handleExportXLSX() {
@@ -151,7 +160,7 @@ export default function RegistrationsTable({
     if (!all) return;
     // Dynamic import to keep bundle small
     const XLSX = await import("xlsx");
-    const wsData = (all as Registration[]).map((r) => ({
+    const wsData = (all as RegistrationWithFlights[]).map((r) => ({
       ID:         r.id,
       Nombre:     r.full_name,
       Email:      r.email,
@@ -258,10 +267,23 @@ export default function RegistrationsTable({
                 </TableCell>
               </TableRow>
             ) : (
-              paged.map((reg) => (
+              paged.flatMap((reg) => [
+                // ── Main registration row ──────────────────────────────────────
                 <TableRow key={reg.id} className={isPending ? "opacity-60" : ""}>
                   <TableCell>
                     <div className="flex items-center gap-2.5">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 -ml-2"
+                        onClick={() => toggleExpand(reg.id)}
+                      >
+                        <ChevronRight
+                          className={`size-4 transition-transform ${
+                            expandedRows.has(reg.id) ? "rotate-90" : ""
+                          }`}
+                        />
+                      </Button>
                       <Avatar name={reg.full_name} />
                       <span className="font-medium text-sm text-foreground">{reg.full_name}</span>
                     </div>
@@ -311,8 +333,47 @@ export default function RegistrationsTable({
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
-                </TableRow>
-              ))
+                </TableRow>,
+
+                // ── Expanded flights row (conditional) ─────────────────────────
+                ...(expandedRows.has(reg.id) && reg.cancelled_flights && reg.cancelled_flights.length > 0
+                  ? [
+                      <TableRow key={`expanded-${reg.id}`} className="bg-muted/50 hover:bg-muted/50">
+                        <TableCell colSpan={6} className="px-4 py-4">
+                          <div className="space-y-3">
+                            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                              Vuelos Cancelados ({reg.cancelled_flights.length})
+                            </p>
+                            <div className="space-y-2">
+                              {reg.cancelled_flights.map((flight, idx) => (
+                                <div key={`${reg.id}-flight-${idx}`} className="flex items-center gap-3 rounded-md border bg-background p-3 text-sm">
+                                  <div className="flex items-center gap-2.5 flex-1">
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                                      {flight.flight_number}
+                                    </span>
+                                    <span className="text-muted-foreground">{flight.airline}</span>
+                                    <span className="text-xs text-muted-foreground">•</span>
+                                    <time className="text-xs text-muted-foreground">
+                                      {new Date(flight.flight_date).toLocaleDateString("es-ES", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}{" "}
+                                      {new Date(flight.flight_date).toLocaleTimeString("es-ES", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </time>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>,
+                    ]
+                  : []),
+              ])
             )}
           </TableBody>
         </Table>

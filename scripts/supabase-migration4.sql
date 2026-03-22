@@ -52,7 +52,8 @@ create index cancelled_flights_flight_number_idx
 
 -- ── Cleanup: Remove old flight columns from registrations ─────────────────────
 
--- Only run this after verifying data migration is complete
--- alter table public.registrations drop column if exists flight_number;
--- alter table public.registrations drop column if exists airline;
--- alter table public.registrations drop column if exists flight_date;
+-- Migrate any existing data from old columns before dropping them
+-- Uncomment the lines below ONLY after verifying all registrations have been migrated to cancelled_flights table
+alter table public.registrations drop column if exists flight_number;
+alter table public.registrations drop column if exists airline;
+alter table public.registrations drop column if exists flight_date;
