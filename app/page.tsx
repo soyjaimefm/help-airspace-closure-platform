@@ -117,7 +117,7 @@ export default function HomePage() {
 
         {/* ── Form section ───────────────────────────────────────────────────── */}
         <section id="form" className="py-14 sm:py-20 bg-muted/40 border-y">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-8">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-8">
 
             {/* Form card */}
             <Card className="shadow-xl shadow-primary/5 py-0 gap-0">
