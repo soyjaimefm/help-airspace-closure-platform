@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createSecretClient } from "@/lib/supabase/server";
 import { registrationSchema, type RegistrationResult } from "@/lib/types";
 import type { RegistrationFormData } from "@/lib/types";
 
@@ -13,7 +13,7 @@ export async function submitRegistration(
     return { success: false, error: "Datos del formulario no válidos." };
   }
 
-  const supabase = await createClient();
+  const supabase = await createSecretClient();
 
   // ── 2. Duplicate passport check ──────────────────────────────────────────
   const { data: existing, error: lookupError } = await supabase
