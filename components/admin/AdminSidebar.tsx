@@ -18,9 +18,9 @@ interface AdminSidebarProps {
 
 const NAV_ITEMS = [
   { href: "/admin",          icon: LayoutDashboard, label: "Dashboard"     },
-  { href: "/admin/registros",icon: FileText,         label: "Registros"    },
-  { href: "/admin/exportar", icon: Download,         label: "Exportar"     },
-  { href: "/admin/config",   icon: Settings,         label: "Configuración"},
+  // { href: "/admin/registros",icon: FileText,         label: "Registros"    },
+  // { href: "/admin/exportar", icon: Download,         label: "Exportar"     },
+  // { href: "/admin/config",   icon: Settings,         label: "Configuración"},
 ];
 
 function getInitials(name: string) {

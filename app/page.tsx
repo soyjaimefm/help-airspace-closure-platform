@@ -9,7 +9,7 @@ import RegistrationForm from "@/components/RegistrationForm";
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
-const NAV_LINKS   = ["Inicio", "Sobre Nosotros", "FAQs"] as const;
+const NAV_LINKS   = ["Inicio"] as const;
 const FOOTER_LINKS = ["Aviso Legal", "Privacidad", "Cookies", "Contacto"] as const;
 
 const TRUST_BADGES = [
@@ -136,7 +136,7 @@ export default function HomePage() {
             </Card>
 
             {/* Trust badges */}
-            <div className="flex items-center justify-center gap-0">
+            {/* <div className="flex items-center justify-center gap-0">
               {TRUST_BADGES.map((badge, i) => (
                 <div key={badge.value} className="flex items-center">
                   {i > 0 && (
@@ -152,7 +152,7 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         </section>
       </main>

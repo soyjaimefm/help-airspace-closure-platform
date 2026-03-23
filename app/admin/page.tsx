@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import RegistrationsTable from "@/components/admin/RegistrationsTable";
-import type { Registration } from "@/lib/types";
+import type { RegistrationWithFlights } from "@/lib/types";
 
 /**
  * Admin dashboard — Server Component.
@@ -11,10 +11,23 @@ import type { Registration } from "@/lib/types";
 export default async function AdminPage() {
   const supabase = await createClient();
 
+  // const { data, error } = await supabase
+  //   .from("registrations")
+  //   .select("*")
+  //   .order("created_at", { ascending: false });
+
   const { data, error } = await supabase
-    .from("registrations")
-    .select("*")
-    .order("created_at", { ascending: false });
+  .from("registrations")
+  .select(`
+    *,
+    cancelled_flights (
+      id,
+      flight_number,
+      airline,
+      flight_date
+    )
+  `)
+  .order("created_at", { ascending: false });
 
   if (error) {
     // Supabase connection issue — show graceful error
@@ -30,7 +43,9 @@ export default async function AdminPage() {
     );
   }
 
+  console.log("[AdminPage] fetched registrations:", data);
+
   return (
-    <RegistrationsTable initialData={(data ?? []) as Registration[]} />
+    <RegistrationsTable initialData={(data ?? []) as RegistrationWithFlights[]} />
   );
 }
