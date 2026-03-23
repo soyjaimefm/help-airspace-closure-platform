@@ -19,6 +19,7 @@ create table public.registrations (
   email           text        not null,
   phone           text        not null,
   passport_number text        not null unique,
+  notes           text        null,
   status          text        not null default 'en_proceso'
                   check (status in ('en_proceso', 'validado', 'incidencia')),
   created_at      timestamptz not null default now()

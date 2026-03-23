@@ -43,6 +43,7 @@ export async function submitRegistration(
       email:           parsed.data.email.trim().toLowerCase(),
       phone:           parsed.data.phone.trim(),
       passport_number: parsed.data.passport_number.trim().toUpperCase(),
+      notes:           parsed.data.notes?.trim() || null,
     })
     .select("id")
     .single();

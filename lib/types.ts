@@ -65,6 +65,10 @@ export const registrationSchema = z.object({
       },
       "No puedes registrar vuelos duplicados."
     ),
+  notes: z
+    .string()
+    .max(1000, "Las observaciones no pueden tener más de 1000 caracteres")
+    .optional(),
   privacy_accepted: z
     .boolean()
     .refine(
@@ -97,6 +101,7 @@ export interface Registration {
   passport_number: string;
   status: RegistrationStatus;
   created_at: string;
+  notes?: string;
 }
 
 // ─── Type for registrations with related cancelled flights (admin panel) ────

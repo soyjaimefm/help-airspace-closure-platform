@@ -18,6 +18,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "./ui/textarea";
 
 import { registrationSchema, type RegistrationFormData, AIRLINES } from "@/lib/types";
 import { submitRegistration } from "@/app/actions";
@@ -446,6 +447,36 @@ export default function RegistrationForm() {
           Agregar vuelo cancelado
         </Button>
       </div>
+
+      {/* Observaciones */}
+      <Controller
+        name="notes"
+        control={control}
+        render={({ field, fieldState: { invalid, error } }) => (
+          <div className="space-y-1.5" data-invalid={invalid}>
+            <Label htmlFor="notes">
+              Observaciones <span className="text-muted-foreground">(Opcional)</span>
+            </Label>
+            <Textarea
+              {...field}
+              id="notes"
+              placeholder="Añada aquí cualquier información relevante sobre su caso..."
+              aria-invalid={invalid}
+              aria-describedby={invalid ? "notes-error" : undefined}
+                />
+                {invalid && (
+                  <p
+                    id="notes-error"
+                    className="flex items-center gap-1 text-xs text-destructive"
+                    role="alert"
+                  >
+                    <AlertCircle className="size-3 shrink-0" />
+                    {error?.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
       <Separator />
 

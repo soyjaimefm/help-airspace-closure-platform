@@ -19,6 +19,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   type RegistrationWithFlights, type RegistrationStatus,
   STATUS_LABELS, STATUS_COLORS,
 } from "@/lib/types";
@@ -68,11 +71,20 @@ function Avatar({ name }: { name: string }) {
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
 function toCSV(data: RegistrationWithFlights[]): string {
-  const header = ["ID","Nombre","Email","Teléfono","Pasaporte","Estado","Fecha"];
-  const rows = data.map((r) => [
-    r.id, `"${r.full_name}"`, r.email, r.phone,
-    r.passport_number, STATUS_LABELS[r.status], new Date(r.created_at).toLocaleDateString("es-ES"),
-  ]);
+  const MAX_FLIGHTS = 6;
+  const flightHeaders = Array.from({ length: MAX_FLIGHTS }, (_, i) => `Vuelo ${i + 1}`);
+  const header = ["ID", "Nombre", "Email", "Teléfono", "Pasaporte", "Observaciones", "Estado", "Fecha", ...flightHeaders];
+
+  const rows = data.map((r) => {
+    const flights = Array.from({ length: MAX_FLIGHTS }, (_, i) =>
+      `${r.cancelled_flights?.[i]?.flight_number || "—"} - ${r.cancelled_flights?.[i]?.airline || "—"} - ${r.cancelled_flights?.[i]?.flight_date ? new Date(r.cancelled_flights?.[i]?.flight_date).toLocaleDateString("es-ES") : "—"}`
+    );
+    return [
+      r.id, `"${r.full_name}"`, r.email, r.phone,
+      r.passport_number, `"${r.notes || "—"}"`, STATUS_LABELS[r.status], new Date(r.created_at).toLocaleDateString("es-ES"), ...flights
+    ]
+  });
+
   return [header, ...rows].map((r) => r.join(",")).join("\n");
 }
 
@@ -160,17 +172,30 @@ export default function RegistrationsTable({
     if (!all) return;
     // Dynamic import to keep bundle small
     const XLSX = await import("xlsx");
-    const wsData = (all as RegistrationWithFlights[]).map((r) => ({
-      ID:         r.id,
-      Nombre:     r.full_name,
-      Email:      r.email,
-      Teléfono:   r.phone,
-      Pasaporte:  r.passport_number,
-      Estado:     STATUS_LABELS[r.status],
-      "Fecha Registro": new Date(r.created_at).toLocaleDateString("es-ES"),
-    }));
-    const ws  = XLSX.utils.json_to_sheet(wsData);
-    const wb  = XLSX.utils.book_new();
+    const MAX_FLIGHTS = 6;
+    const wsData = (all as RegistrationWithFlights[]).map((r) => {
+      const base = {
+        ID: r.id,
+        Nombre: r.full_name,
+        Email: r.email,
+        Teléfono: r.phone,
+        Pasaporte: r.passport_number,
+        Observaciones: r.notes || "—",
+        Estado: STATUS_LABELS[r.status],
+        "Fecha Registro": new Date(r.created_at).toLocaleDateString("es-ES"),
+      }
+
+      const flights = Object.fromEntries(
+        Array.from({ length: MAX_FLIGHTS }, (_, i) => [
+          `Vuelo ${i + 1}`,
+          `${r.cancelled_flights?.[i]?.flight_number || "—"} - ${r.cancelled_flights?.[i]?.airline || "—"} - ${r.cancelled_flights?.[i]?.flight_date ? new Date(r.cancelled_flights?.[i]?.flight_date).toLocaleDateString("es-ES") : "—"}`,
+        ])
+      );
+
+      return { ...base, ...flights }
+    });
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Registros");
     XLSX.writeFile(wb, "registros.xlsx");
   }
@@ -254,6 +279,7 @@ export default function RegistrationsTable({
               </TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Pasaporte</TableHead>
+              <TableHead>Observaciones</TableHead>
               <TableHead>Fecha Registro</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="w-12" />
@@ -290,6 +316,27 @@ export default function RegistrationsTable({
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{reg.email}</TableCell>
                   <TableCell className="text-sm font-mono">{reg.passport_number}</TableCell>
+                  <TableCell className="max-w-48">
+                    {reg.notes ? (
+                      <TooltipProvider delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p className="text-sm text-muted-foreground truncate cursor-default">
+                              {reg.notes}
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="max-w-72 whitespace-normal text-xs"
+                          >
+                            {reg.notes}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <span className="text-muted-foreground/40 text-sm">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                     {new Date(reg.created_at).toLocaleDateString("es-ES", {
                       day: "2-digit", month: "short", year: "numeric",
