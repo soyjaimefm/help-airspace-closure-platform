@@ -546,7 +546,7 @@ export default function RegistrationForm() {
         ) : (
           <>
             <Send />
-            Enviar Registro Oficial
+            Enviar Registro
           </>
         )}
       </Button>

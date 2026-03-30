@@ -1,6 +1,6 @@
 import { Scale, CheckCircle2, ShieldCheck, Users } from "lucide-react";
 
-import { Badge }     from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -9,19 +9,19 @@ import RegistrationForm from "@/components/RegistrationForm";
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
-const NAV_LINKS   = ["Inicio"] as const;
+const NAV_LINKS = ["Inicio"] as const;
 const FOOTER_LINKS = ["Aviso Legal", "Privacidad", "Cookies", "Contacto"] as const;
 
 const TRUST_BADGES = [
   { label: "Acreditado por", value: "LEGAL_INTL" },
-  { label: "Seguridad",      value: "ISO_27001"  },
-  { label: "Consumidores",   value: "ECC_NET"    },
+  { label: "Seguridad", value: "ISO_27001" },
+  { label: "Consumidores", value: "ECC_NET" },
 ] as const;
 
 const FEATURES = [
   { icon: CheckCircle2, text: "Sin costes iniciales" },
-  { icon: ShieldCheck,  text: "Gestión 100% digital" },
-  { icon: Users,        text: "Miles de afectados"   },
+  { icon: ShieldCheck, text: "Gestión 100% digital" },
+  { icon: Users, text: "Miles de afectados" },
 ] as const;
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -82,14 +82,13 @@ export default function HomePage() {
 
               <div className="space-y-4">
                 <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight text-foreground">
-                  Compensación por Cancelaciones:{" "}
-                  <span className="text-primary">Oriente Medio</span>
+                  ¿Te cancelaron el vuelo por el cierre del espacio aéreo?{" "}
+                  <span className="text-primary">Únete a una reclamación colectiva</span>
                 </h1>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   Si su vuelo fue cancelado debido al cierre repentino del espacio
-                  aéreo en el Oriente Medio, usted puede tener derecho a una
-                  indemnización oficial según la normativa internacional. Únase a la
-                  plataforma de registro gestionada por expertos legales.
+                  aéreo en Oriente Medio, usted puede tener derecho a una
+                  indemnización oficial según la normativa internacional. Regístrese en nuestra plataforma gestionada por expertos legales.
                 </p>
               </div>
 
@@ -200,6 +199,20 @@ export default function HomePage() {
               <span>Cifrado SSL 256 bits</span>
             </div>
           </div>
+
+        </div>
+        {/* Firma personal — añade esto */}
+        <div className="max-w-2xl mx-auto px-6 mt-4 pt-4">
+          <p className="text-muted-foreground text-sm text-center tracking-wide">
+            Desarrollado por{' '}
+            <a href="https://jaimefm.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:opacity-75 transition-colors underline underline-offset-2"
+            >
+              Jaime FM
+            </a>
+          </p>
         </div>
       </footer>
     </div>

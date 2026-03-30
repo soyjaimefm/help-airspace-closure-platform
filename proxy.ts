@@ -11,6 +11,6 @@ export const config = {
      * Run on all routes except static assets.
      * Supabase requires this to keep sessions refreshed.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
