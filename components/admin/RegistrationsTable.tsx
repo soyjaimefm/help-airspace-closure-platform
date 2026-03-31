@@ -216,7 +216,7 @@ export default function RegistrationsTable({
         <div>
           <h1 className="text-2xl font-bold text-foreground">Registros de Demandantes</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Gestión y control centralizado de reclamaciones colectivas activas.
+            Gestión y control centralizado de reclamaciones activas.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">

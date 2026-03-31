@@ -40,7 +40,7 @@ export default function HomePage() {
               <Scale className="size-4 text-primary-foreground" />
             </div>
             <span className="font-bold text-sm sm:text-base text-foreground">
-              Registro de Demandas Colectivas
+              Registro de Reclamaciones a aerolíneas
             </span>
           </a>
 
@@ -82,13 +82,14 @@ export default function HomePage() {
 
               <div className="space-y-4">
                 <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight text-foreground">
-                  ¿Te cancelaron el vuelo por el cierre del espacio aéreo?{" "}
-                  <span className="text-primary">Únete a una reclamación colectiva</span>
+                  ¿Te cancelaron el vuelo por el cierre del espacio aéreo?<br />
+                  <span className="text-primary">Te ayudamos con la reclamación</span>
                 </h1>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Si su vuelo fue cancelado debido al cierre repentino del espacio
-                  aéreo en Oriente Medio, usted puede tener derecho a una
-                  indemnización oficial según la normativa internacional. Regístrese en nuestra plataforma gestionada por expertos legales.
+                  Si tu vuelo fue cancelado debido al cierre repentino del espacio
+                  aéreo en Oriente Medio, puedes tener derecho a una
+                  indemnización oficial según la normativa internacional.
+                  Regístrate en nuestra plataforma gestionada por expertos legales.
                 </p>
               </div>
 
@@ -191,7 +192,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
             <p>
-              © 2026 Plataforma de Registro para Demandas Colectivas. Todos los
+              © 2026 Plataforma de Registro de reclamaciones a aerolíneas. Todos los
               derechos reservados.
             </p>
             <div className="flex items-center gap-1.5">

@@ -511,7 +511,7 @@ export default function RegistrationForm() {
                       Política de Privacidad
                     </a>{" "}
                     y los términos legales de la plataforma. Autorizo el tratamiento de
-                    mis datos para la gestión de esta demanda colectiva bajo el marco del
+                    mis datos para la gestión de reclamaciones bajo el marco del
                     RGPD.
                   </span>
                 </Label>

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Plataforma de Demandas Colectivas por cierre de espacio aéreo",
-  description: "Formulario de Registro - Plataforma de Demandas Colectivas por cierre de espacio aéreo",
+  title: "Plataforma de registro de demandas por cierre de espacio aéreo",
+  description: "Formulario de Registro - Plataforma de Demandas por cierre de espacio aéreo en oriente medio",
 };
 
 export default function RootLayout({

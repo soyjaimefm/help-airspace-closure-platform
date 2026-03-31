@@ -59,7 +59,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div>
             <h1 className="text-xl font-bold text-foreground">Panel de Administración</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Plataforma Legal · Demandas Colectivas
+              Plataforma Legal · Reclamaciones a aerolíneas
             </p>
           </div>
         </div>

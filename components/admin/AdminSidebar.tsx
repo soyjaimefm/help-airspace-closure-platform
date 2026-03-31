@@ -58,7 +58,7 @@ export default function AdminSidebar({ userEmail, userName }: AdminSidebarProps)
               Plataforma Legal
             </p>
             <p className="text-[10px] font-semibold text-primary uppercase tracking-wider truncate">
-              Demandas Colectivas
+              Reclamaciones
             </p>
           </div>
         )}
