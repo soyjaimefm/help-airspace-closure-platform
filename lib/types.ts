@@ -57,7 +57,7 @@ export const registrationSchema = z.object({
       (flights) => {
         const seen = new Set<string>();
         for (const flight of flights) {
-          const key = `${flight.flight_number.toUpperCase()}-${flight.airline}`;
+          const key = `${flight.flight_number.toUpperCase()}-${flight.airline}-${flight.flight_date}`;
           if (seen.has(key)) return false;
           seen.add(key);
         }
