@@ -73,8 +73,6 @@ create table public.cancelled_flights (
   airline         text          not null,
   flight_date     timestamptz   not null,
   created_at      timestamptz   not null default now(),
-  -- Prevent duplicate flights per registration
-  unique(registration_id, flight_number)
 );
 
 comment on table public.cancelled_flights
